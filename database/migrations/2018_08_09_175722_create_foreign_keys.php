@@ -8,18 +8,18 @@ class CreateForeignKeys extends Migration {
 
 	public function up()
 	{
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->foreign('departureAirport')->references('id')->on('Airports')
+		Schema::table('flights', function(Blueprint $table) {
+			$table->foreign('departureAirport')->references('id')->on('airports')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->foreign('arrivalAirport')->references('id')->on('Airports')
+		Schema::table('flights', function(Blueprint $table) {
+			$table->foreign('arrivalAirport')->references('id')->on('airports')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->foreign('transporter')->references('id')->on('Transporters')
+		Schema::table('flights', function(Blueprint $table) {
+			$table->foreign('transporter')->references('id')->on('transporters')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
@@ -27,14 +27,14 @@ class CreateForeignKeys extends Migration {
 
 	public function down()
 	{
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->dropForeign('Flights_departureAirport_foreign');
+		Schema::table('flights', function(Blueprint $table) {
+			$table->dropForeign('flight_departureAirport_foreign');
 		});
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->dropForeign('Flights_arrivalAirport_foreign');
+		Schema::table('flights', function(Blueprint $table) {
+			$table->dropForeign('flight_arrivalAirport_foreign');
 		});
-		Schema::table('Flights', function(Blueprint $table) {
-			$table->dropForeign('Flights_transporter_foreign');
+		Schema::table('flight', function(Blueprint $table) {
+			$table->dropForeign('flight_transporter_foreign');
 		});
 	}
 }

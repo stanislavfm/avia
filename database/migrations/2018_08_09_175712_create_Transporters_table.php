@@ -8,15 +8,15 @@ class CreateTransportersTable extends Migration {
 
 	public function up()
 	{
-		Schema::create('Transporters', function(Blueprint $table) {
+		Schema::create('transporters', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('code');
+			$table->string('code', 2)->unique();
 			$table->string('name')->nullable();
 		});
 	}
 
 	public function down()
 	{
-		Schema::drop('Transporters');
+		Schema::drop('transporters');
 	}
 }

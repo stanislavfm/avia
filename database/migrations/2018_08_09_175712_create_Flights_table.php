@@ -8,9 +8,9 @@ class CreateFlightsTable extends Migration {
 
 	public function up()
 	{
-		Schema::create('Flights', function(Blueprint $table) {
+		Schema::create('flights', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('number');
+			$table->string('number')->unique();
             $table->unsignedInteger('transporter');
             $table->unsignedInteger('departureAirport');
             $table->unsignedInteger('arrivalAirport');
@@ -21,6 +21,6 @@ class CreateFlightsTable extends Migration {
 
 	public function down()
 	{
-		Schema::drop('Flights');
+		Schema::drop('flights');
 	}
 }

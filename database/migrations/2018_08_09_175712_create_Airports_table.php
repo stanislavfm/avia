@@ -8,15 +8,15 @@ class CreateAirportsTable extends Migration {
 
 	public function up()
 	{
-		Schema::create('Airports', function(Blueprint $table) {
+		Schema::create('airports', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('code');
+			$table->string('code', 3)->unique();
 			$table->string('name')->nullable();
 		});
 	}
 
 	public function down()
 	{
-		Schema::drop('Airports');
+		Schema::drop('airports');
 	}
 }
