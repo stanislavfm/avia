@@ -17,6 +17,10 @@ class TransportersTableSeeder extends Seeder
         }
     }
 
+    /**
+     * @see CreateTransportersTable
+     * @return array
+     */
     private function getData()
     {
         return [
