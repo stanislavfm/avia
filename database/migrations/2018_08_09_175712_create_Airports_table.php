@@ -1,5 +1,6 @@
 <?php
 
+use App\Airport;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -10,9 +11,9 @@ class CreateAirportsTable extends Migration {
 	{
 		Schema::create('airports', function(Blueprint $table) {
 			$table->increments('id');
-			$table->string('code', 3)->unique();
+			$table->string('code', Airport::CODE_LENGTH)->unique();
 			$table->string('name')->nullable();
-			$table->string('location', 25);
+			$table->string('location', Airport::LOCATION_LENGTH);
 			$table->tinyInteger('timezoneOffset');
 		});
 	}

@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Flight extends Model
 {
+    const NUMBER_LENGTH = 4;
+
     public $timestamps = false;
 
     public function transporter()
