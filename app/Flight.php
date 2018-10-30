@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property-read \App\Airport $arrivalAirport
  * @property-read \App\Airport $departureAirport
  * @property-read \App\Transporter $transporter
+ * @mixin \Eloquent
  */
 class Flight extends Model
 {

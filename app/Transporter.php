@@ -5,11 +5,10 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 
 /**
- * App\Transporter
- *
  * @property int $id
  * @property string $code
  * @property string|null $name
+ * @mixin \Eloquent
  */
 class Transporter extends Model
 {

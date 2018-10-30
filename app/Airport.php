@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string|null $name
  * @property string $location
  * @property int $timezoneOffset
+ * @mixin \Eloquent
  */
 class Airport extends Model
 {
