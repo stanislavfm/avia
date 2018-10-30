@@ -13,7 +13,7 @@ class CreateAirportsTable extends Migration {
 			$table->string('code', 3)->unique();
 			$table->string('name')->nullable();
 			$table->string('location', 25);
-			$table->tinyInteger('timezone_offset');
+			$table->tinyInteger('timezoneOffset');
 		});
 	}
 

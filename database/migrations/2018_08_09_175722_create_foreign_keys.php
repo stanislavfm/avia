@@ -9,17 +9,17 @@ class CreateForeignKeys extends Migration {
 	public function up()
 	{
 		Schema::table('flights', function(Blueprint $table) {
-			$table->foreign('departureAirport')->references('id')->on('airports')
+			$table->foreign('departureAirportId')->references('id')->on('airports')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
 		Schema::table('flights', function(Blueprint $table) {
-			$table->foreign('arrivalAirport')->references('id')->on('airports')
+			$table->foreign('arrivalAirportId')->references('id')->on('airports')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});
 		Schema::table('flights', function(Blueprint $table) {
-			$table->foreign('transporter')->references('id')->on('transporters')
+			$table->foreign('transporterId')->references('id')->on('transporters')
 						->onDelete('cascade')
 						->onUpdate('cascade');
 		});

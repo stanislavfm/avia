@@ -5,15 +5,15 @@ use Faker\Generator as Faker;
 $factory->define(App\Flight::class, function (Faker $faker) {
     return [
         'number' => $faker->unique()->numberBetween(1, 9999),
-        'transporter' => function () {
+        'transporterId' => function () {
             return App\Transporter::all('id')->random()->id;
         },
-        'departureAirport' => function () {
+        'departureAirportId' => function () {
             return App\Airport::all('id')->random()->id;
         },
-        'arrivalAirport' => function (array $flight) {
+        'arrivalAirportId' => function (array $flight) {
             return  App\Airport::all('id')->reject(function (App\Airport $airport) use ($flight) {
-                return $airport->id === $flight['departureAirport'];
+                return $airport->id === $flight['departureAirportId'];
             })->random()->id;
         },
         'departureTime' => function () use ($faker) {
@@ -22,8 +22,8 @@ $factory->define(App\Flight::class, function (Faker $faker) {
             return $departureTime;
         },
         'arrivalTime' => function (array $flight) {
-            $departureLocation = App\Airport::find($flight['departureAirport'])->location;
-            $arrivalLocation = App\Airport::find($flight['arrivalAirport'])->location;
+            $departureLocation = App\Airport::find($flight['departureAirportId'])->location;
+            $arrivalLocation = App\Airport::find($flight['arrivalAirportId'])->location;
 
             list ($latitude1, $longitude1) = explode(',', $departureLocation);
             list ($latitude2, $longitude2) = explode(',', $arrivalLocation);
