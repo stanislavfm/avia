@@ -1,18 +1,14 @@
 <?php
 
-use Illuminate\Http\Request;
+Route::get('airport', 'Api\GetController@airport');
+Route::get('airports', 'Api\GetController@airports');
 
-/*
-|--------------------------------------------------------------------------
-| API Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register API routes for your application. These
-| routes are loaded by the RouteServiceProvider within a group which
-| is assigned the "api" middleware group. Enjoy building your API!
-|
-*/
+Route::get('transporter', 'Api\GetController@transporter');
+Route::get('transporters', 'Api\GetController@transporters');
 
-Route::middleware('auth:api')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('flight', 'Api\GetController@flight');
+Route::get('flightsSearch', 'Api\GetController@flightsSearch');
+
+Route::post('airport', 'Api\PostController@airport');
+Route::post('transporter', 'Api\PostController@transporter');
+Route::post('flight', 'Api\PostController@transporter');
