@@ -10,46 +10,18 @@ namespace App\Http\Controllers\Api;
 use Illuminate\Http\Request;
 use Illuminate\Database\Schema\Builder;
 use App\Http\Controllers\Controller;
-use App\Rules;
+use App\Http\Resources;
 use App\Airport;
-use App\Http\Resources\Airport as AirportResource;
-use App\Http\Resources\Transporter as TransporterResource;
-use App\Http\Resources\Flight as FlightResource;
 use App\Flight;
 use App\Transporter;
 
 class GetController extends Controller
 {
-    public function airport(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH]
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
-        }
-
-        $airport = Airport::where('code', $request->input('code'))->first();
-
-        if (is_null($airport)) {
-            return [
-                'status' => false,
-                'message' => 'No airport found.'
-            ];
-        }
-
-        return new AirportResource($airport);
-    }
-
     public function airports(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'name' => ['string', 'min:1', 'max:' . Builder::$defaultStringLength]
+            'name' => ['sometimes', 'required', 'string', 'min:1', 'max:' . Builder::$defaultStringLength],
+            'code' => ['sometimes', 'required', 'string', 'size:' . Airport::CODE_LENGTH]
         ]);
 
         if ($validator->fails()) {
@@ -57,48 +29,39 @@ class GetController extends Controller
                 'status' => false,
                 'message' => 'Validation failed.',
                 'details' => $validator->errors()
+            ];
+        }
+
+        if ($request->has(['name', 'code'])) {
+            return [
+                'status' => false,
+                'message' => 'It needs to specify one query parameter.'
             ];
         }
 
         if ($request->has('name')) {
-            $airports = Airport::where('name', 'like', '%' . $request->input('name') . '%');
+            $airports = Airport::where('name', 'like', '%' . $request->input('name') . '%')->get();
+        } elseif ($request->has('code')) {
+            $airports = Airport::where('code', $request->input('code'))->get();
         } else {
             $airports = Airport::all();
         }
 
-        return AirportResource::collection($airports);
-    }
-
-    public function transporter(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'code' => ['required', 'string', 'size:' . Transporter::CODE_LENGTH]
-        ]);
-
-        if ($validator->fails()) {
+        if ($airports->isEmpty()) {
             return [
                 'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
+                'message' => 'No airports found.'
             ];
         }
 
-        $transporter = Transporter::where('code', $request->input('code'))->first();
-
-        if (is_null($transporter)) {
-            return [
-                'status' => false,
-                'message' => 'No transporter found.'
-            ];
-        }
-
-        return new TransporterResource($transporter);
+        return Resources\Airport::collection($airports);
     }
 
     public function transporters(Request $request)
     {
         $validator = \Validator::make($request->all(), [
-            'name' => ['string', 'min:1', 'max:' . Builder::$defaultStringLength]
+            'name' => ['sometimes', 'required', 'string', 'min:1', 'max:' . Builder::$defaultStringLength],
+            'code' => ['sometimes', 'required', 'string', 'size:' . Transporter::CODE_LENGTH]
         ]);
 
         if ($validator->fails()) {
@@ -106,24 +69,47 @@ class GetController extends Controller
                 'status' => false,
                 'message' => 'Validation failed.',
                 'details' => $validator->errors()
+            ];
+        }
+
+        if ($request->has(['name', 'code'])) {
+            return [
+                'status' => false,
+                'message' => 'It needs to specify one query parameter.'
             ];
         }
 
         if ($request->has('name')) {
-            $airports = Transporter::where('name', 'like', '%' . $request->input('name') . '%');
+            $transporters = Transporter::where('name', 'like', '%' . $request->input('name') . '%')->get();
+        } elseif ($request->has('code')) {
+            $transporters = Transporter::where('code', $request->input('code'))->get();
         } else {
-            $airports = Transporter::all();
+            $transporters = Transporter::all();
         }
 
-        return TransporterResource::collection($airports);
+        if ($transporters->isEmpty()) {
+            return [
+                'status' => false,
+                'message' => 'No transporters found.'
+            ];
+        }
+
+        return Resources\Transporter::collection($transporters);
     }
 
-    public function flight(Request $request)
+    public function flights(Request $request)
     {
-        $flightNumberValidator = new Rules\FlightNumber();
-
         $validator = \Validator::make($request->all(), [
-            'number' => ['required', $flightNumberValidator]
+            'number' => ['sometimes', 'required', 'string', 'max:' . Flight::NUMBER_LENGTH, 'regex:/^\d+$/'],
+            'transporter' => ['sometimes', 'required', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
+            'departureAirport'  => ['sometimes', 'required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
+            'arrivalAirport'    => ['sometimes', 'required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
+            'departureTime'     => ['sometimes', 'required', 'date'],
+            'arrivalTime'       => ['sometimes', 'required', 'date'],
+            'departureTimeFrom' => ['sometimes', 'required_with:departureTimeTo', 'date'],
+            'departureTimeTo'   => ['sometimes', 'required_with:departureTimeFrom', 'date'],
+            'arrivalTimeFrom'   => ['sometimes', 'required_with:arrivalTimeTo', 'date'],
+            'arrivalTimeTo'     => ['sometimes', 'required_with:arrivalTimeFrom', 'date'],
         ]);
 
         if ($validator->fails()) {
@@ -134,65 +120,95 @@ class GetController extends Controller
             ];
         }
 
-        $flightNumber = $flightNumberValidator->getFlightNumber();
-        $transporterCode = $flightNumberValidator->getTransporterCode();
-
-        $flight = Flight::where('number', $flightNumber)->first();
-
-        if (is_null($flight)) {
+        if (
+            $request->has('departureTime')
+            && $request->hasAny(['departureTimeFrom', 'departureTimeTo'])
+        ) {
             return [
                 'status' => false,
-                'message' => 'No flight found.',
+                'message' => 'Invalid request parameters. Departure time should be specified without departure time from or departure time to fields.'
             ];
         }
 
-        if ($flight->transporter->code !== $transporterCode) {
+        if (
+            $request->has('arrivalTime')
+            && $request->hasAny(['arrivalTimeFrom', 'arrivalTimeTo'])
+        ) {
             return [
                 'status' => false,
-                'message' => 'No flight with given transporter found.'
+                'message' => 'Invalid request parameters. Arrival time should be specified without arrival time from or arrival time to fields.'
             ];
         }
 
-        return new FlightResource($flight);
-    }
-
-    public function flightsSearch(Request $request)
-    {
-        $validator = \Validator::make($request->all(), [
-            'departureAirport' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
-            'arrivalAirport'   => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
-            'departureDate'    => ['required', 'date'],
-        ]);
-
-        if ($validator->fails()) {
+        if (
+            $request->hasAny(['departureTimeFrom', 'departureTimeTo'])
+            && !$request->has(['departureTimeFrom', 'departureTimeTo'])
+        ) {
             return [
                 'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
+                'message' => 'Invalid request parameters. It should be specified both departure time from and departure time to fields.'
             ];
         }
 
-        $departureDateFrom = new \DateTime($request->input('departureDate'), new \DateTimeZone('UTC'));
+        if (
+            $request->hasAny(['arrivalTimeFrom', 'arrivalTimeTo'])
+            && !$request->has(['arrivalTimeFrom', 'arrivalTimeTo'])
+        ) {
+            return [
+                'status' => false,
+                'message' => 'Invalid request parameters. It should be specified both arrival time from and arrival time to fields.'
+            ];
+        }
 
-        $departureDateTo = clone $departureDateFrom;
-        $departureDateTo->setTime(23, 59, 59);
+        $flightsQuery = Flight::query();
 
-        $flights = Flight
-            ::whereHas('departureAirport', function ($query) use ($request) {
+        if ($request->has('number')) {
+            $flightsQuery->where('number', $request->input('number'));
+        }
+
+        if ($request->has('transporter')) {
+            $flightsQuery->whereHas('transporter', function ($query) use ($request) {
+                $query->where('code', $request->input('transporter'));
+            });
+        }
+
+        if ($request->has('departureAirport')) {
+            $flightsQuery->whereHas('departureAirport', function ($query) use ($request) {
                 $query->where('code', $request->input('departureAirport'));
-            })
-            ->whereHas('arrivalAirport', function ($query) use ($request) {
-                $query->where('code', $request->input('arrivalAirport'));
-            })
-            ->whereBetween('departureTime', [$departureDateFrom, $departureDateTo]);
+            });
+        }
 
-        if (!$flights->count()) {
+        if ($request->has('arrivalAirport')) {
+            $flightsQuery->whereHas('arrivalAirport', function ($query) use ($request) {
+                $query->where('code', $request->input('arrivalAirport'));
+            });
+        }
+
+        if ($request->has('departureTime')) {
+            $flightsQuery->where('departureTime', $request->input('departureTime'));
+        }
+
+        if ($request->has('arrivalTime')) {
+            $flightsQuery->where('arrivalTime', $request->input('arrivalTime'));
+        }
+
+        if ($request->has(['departureTimeFrom', 'departureTimeTo'])) {
+            $flightsQuery->whereBetween('departureTime', [$request->input('departureTimeFrom'), $request->input('departureTimeTo')]);
+        }
+
+        if ($request->has(['arrivalTimeFrom', 'departureTimeTo'])) {
+            $flightsQuery->whereBetween('arrivalTime', [$request->input('arrivalTimeFrom'), $request->input('arrivalTimeTo')]);
+        }
+
+        $flights = $flightsQuery->get();
+
+        if ($flights->isEmpty()) {
             return [
                 'status' => false,
                 'message' => 'No flights found.'
             ];
         }
 
-        return FlightResource::collection($flights->get());
+        return Resources\Flight::collection($flights);
     }
 }
