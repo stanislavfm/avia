@@ -21,6 +21,8 @@ class Airport extends Model
 
     public $timestamps = false;
 
+    protected $fillable = ['code', 'name', 'location', 'timezoneOffset'];
+
     public function flightDepartures()
     {
         return $this->hasMany('App\Flight', 'departureAirportId');

@@ -17,6 +17,8 @@ class Transporter extends Model
 
     public $timestamps = false;
 
+    protected $fillable = ['code', 'name'];
+
     public function flights()
     {
         return $this->hasMany('App\Flight', 'transporterId');

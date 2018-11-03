@@ -23,6 +23,14 @@ class Flight extends Model
 
     public $timestamps = false;
 
+    protected $dates = [
+        'departureTime',
+        'arrivalTime'
+    ];
+
+    //todo
+    protected $fillable = ['number', 'transporterId', 'departureAirportId', 'arrivalAirportId', 'departureTime', 'arrivalTime'];
+
     public function transporter()
     {
         return $this->hasOne('App\Transporter', 'id', 'transporterId');
