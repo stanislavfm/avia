@@ -137,7 +137,7 @@ class PutController extends Controller
                 ];
             } else {
                 $departureAirport = Airport::where('code', $request->input('departureAirport'))->first();
-                $flight->departureAirportId = $departureAirport->id;
+                $flight->departureAirport()->associate($departureAirport);
             }
         }
 
@@ -149,8 +149,13 @@ class PutController extends Controller
                 ];
             } else {
                 $arrivalAirport = Airport::where('code', $request->input('departureAirport'))->first();
-                $flight->arrivalAirportId = $arrivalAirport->id;
+                $flight->arrivalAirport()->associate($arrivalAirport);
             }
+        }
+
+        if ($request->has('transporter')) {
+            $transporter = Transporter::where('code', $request->input('transporter'))->first();
+            $flight->transporter()->associate($transporter);
         }
 
         $flight->fill($request->only([

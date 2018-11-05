@@ -82,17 +82,17 @@ class PostController extends Controller
             ];
         }
 
-        $transporter = Transporter::where('code', $request->input('transporter'))->first();
-        $departureAirport = Airport::where('code', $request->input('departureAirport'))->first();
-        $arrivalAirport = Airport::where('code', $request->input('arrivalAirport'))->first();
-
         $flight = new Flight($request->only([
             'number', 'departureTime', 'arrivalTime'
         ]));
 
-        $flight->transporterId = $transporter->id;
-        $flight->departureAirportId = $departureAirport->id;
-        $flight->arrivalAirportId = $arrivalAirport->id;
+        $transporter = Transporter::where('code', $request->input('transporter'))->first();
+        $departureAirport = Airport::where('code', $request->input('departureAirport'))->first();
+        $arrivalAirport = Airport::where('code', $request->input('arrivalAirport'))->first();
+
+        $flight->transporter()->associate($transporter);
+        $flight->departureAirport()->associate($departureAirport);
+        $flight->arrivalAirport()->associate($arrivalAirport);
 
         $flight->save();
 

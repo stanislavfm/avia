@@ -23,26 +23,21 @@ class Flight extends Model
 
     public $timestamps = false;
 
-    protected $dates = [
-        'departureTime',
-        'arrivalTime'
-    ];
-
-    //todo
-    protected $fillable = ['number', 'transporterId', 'departureAirportId', 'arrivalAirportId', 'departureTime', 'arrivalTime'];
+    protected $dates = ['departureTime', 'arrivalTime'];
+    protected $fillable = ['number', 'departureTime', 'arrivalTime'];
 
     public function transporter()
     {
-        return $this->hasOne('App\Transporter', 'id', 'transporterId');
+        return $this->belongsTo('App\Transporter', 'transporterId');
     }
 
     public function departureAirport()
     {
-        return $this->hasOne('App\Airport', 'id', 'departureAirportId');
+        return $this->belongsTo('App\Airport', 'departureAirportId');
     }
 
     public function arrivalAirport()
     {
-        return $this->hasOne('App\Airport', 'id', 'arrivalAirportId');
+        return $this->belongsTo('App\Airport', 'arrivalAirportId');
     }
 }
