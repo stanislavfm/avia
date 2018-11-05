@@ -1,17 +1,18 @@
 <?php
 
-Route::get('airports', 'Api\GetController@airports');
-Route::get('transporters', 'Api\GetController@transporters');
-Route::get('flights', 'Api\GetController@flights');
+Route::get('airports', 'Api\AirportController@createAirport');
+Route::get('transporters', 'Api\TransporterController@getTransporters');
+Route::get('flights', 'Api\FlightController@getFlights');
 
-Route::post('airport', 'Api\PostController@airport');
-Route::post('transporter', 'Api\PostController@transporter');
-Route::post('flight', 'Api\PostController@flight');
+Route::post('airport', 'Api\AirportController@createAirport');
+Route::post('transporter', 'Api\TransporterController@createTransporter');
+Route::post('flight', 'Api\FlightController@createFlight');
 
-Route::put('airport', 'Api\PutController@airport');
-Route::put('transporter', 'Api\PutController@transporter');
-Route::put('flight', 'Api\PutController@airport');
+Route::put('airport', 'Api\AirportController@updateAirport');
+Route::put('transporter', 'Api\TransporterController@updateTransporter');
+Route::put('flight', 'Api\FlightController@updateFlight');
 
-Route::delete('airport', 'Api\DeleteController@airport');
-Route::delete('transporter', 'Api\DeleteController@transporter');
-Route::delete('flight', 'Api\DeleteController@flight');
+Route::delete('airport', 'Api\AirportController@deleteAirport');
+Route::delete('transporter', 'Api\TransporterController@deleteTransporter');
+Route::delete('flight', 'Api\FlightController@deleteFlight');
+
