@@ -42,6 +42,10 @@ class Kernel extends HttpKernel
             'bindings',
             \App\Http\Middleware\ApiResponse::class,
         ],
+
+        'api.auth' => [
+            \App\Http\Middleware\ApiAuth::class,
+        ],
     ];
 
     /**
@@ -60,5 +64,8 @@ class Kernel extends HttpKernel
         'guest' => \App\Http\Middleware\RedirectIfAuthenticated::class,
         'signed' => \Illuminate\Routing\Middleware\ValidateSignature::class,
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
+
+        \App\Http\Controllers\Api\AirportController::class => \App\Http\Middleware\ApiAuth::class,
+//        'api.airports' => \App\Http\Middleware\ApiAuth::class,
     ];
 }

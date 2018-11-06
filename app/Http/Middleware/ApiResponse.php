@@ -20,7 +20,11 @@ class ApiResponse
         /** @var JsonResponse $response */
         $response = $next($request);
 
-        if (!$response instanceof JsonResponse) {
+        if ($response instanceof JsonResponse) {
+            $response = $response->getData(true);
+        }
+
+        if (!is_array($response)) {
             return $response;
         }
 
@@ -46,14 +50,12 @@ class ApiResponse
         ];
     }
 
-    private function getResponseData(JsonResponse $response)
+    private function getResponseData(array $response)
     {
-        $responseData = $response->getData(true);
-
-        if (!isset($responseData['status'])) {
-            $responseData = array_prepend($responseData, true, 'status');
+        if (!isset($response['status'])) {
+            $response = array_prepend($response, true, 'status');
         }
 
-        return $responseData;
+        return $response;
     }
 }
