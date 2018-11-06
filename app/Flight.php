@@ -10,8 +10,8 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $transporterId
  * @property int $departureAirportId
  * @property int $arrivalAirportId
- * @property string $departureTime
- * @property string $arrivalTime
+ * @property \Illuminate\Support\Carbon $departureTime
+ * @property \Illuminate\Support\Carbon $arrivalTime
  * @property-read \App\Airport $arrivalAirport
  * @property-read \App\Airport $departureAirport
  * @property-read \App\Transporter $transporter
