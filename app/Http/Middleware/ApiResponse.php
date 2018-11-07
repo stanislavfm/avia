@@ -5,6 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use App\AuthToken;
 
 class ApiResponse
 {
@@ -20,42 +21,38 @@ class ApiResponse
         /** @var JsonResponse $response */
         $response = $next($request);
 
-        if ($response instanceof JsonResponse) {
-            $response = $response->getData(true);
-        }
-
-        if (!is_array($response)) {
+        if (!$response instanceof JsonResponse) {
             return $response;
         }
 
-        $responseData = [
+        $apiResponseData = [
             'request'  => $this->getRequestData($request),
-            'response' => $this->getResponseData($response),
+            'response' => $response->getData(),
             'version'  => config('api.version'),
             'hash'     => str_random(32)
         ];
 
-        return new JsonResponse($responseData);
+        $apiResponse = new JsonResponse($apiResponseData);
+        $apiResponse->setStatusCode($response->getStatusCode());
+
+        return $apiResponse;
     }
 
     private function getRequestData(Request $request)
     {
-        $requestMethod = strtolower($request->getMethod());
-        $route = $request->route();
+        $action = $request->route()->getActionMethod();
+        $permissionsPattern = implode('|', AuthToken::PERMISSIONS);
+        $pattern = "/^($permissionsPattern)(\w+)$/";
+
+        preg_match($pattern, $action, $matches);
+
+        $method = isset($matches[1]) ? $matches[1] : 'unrecognized';
+        $command = isset($matches[2]) ? $matches[2] : 'unrecognized';
 
         return [
-            'method'     => $requestMethod,
-            'command'    => $route->getActionMethod(),
+            'method'     => $method,
+            'command'    => strtolower($command),
             'parameters' => $request->all()
         ];
-    }
-
-    private function getResponseData(array $response)
-    {
-        if (!isset($response['status'])) {
-            $response = array_prepend($response, true, 'status');
-        }
-
-        return $response;
     }
 }

@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Support\Carbon;
 use App\Http\Controllers\Controller;
 use App\Http\Resources;
@@ -23,11 +24,11 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $hash = AuthToken::createHash($request->input('token'));
@@ -35,8 +36,8 @@ class AuthController extends Controller
 
         if (is_null($authToken)) {
             return [
-                'status' => false,
-                'message' => 'No token found.',
+                'status' => Response::HTTP_NOT_FOUND,
+                'messages' => ['No token found.'],
             ];
         }
 
@@ -50,11 +51,11 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $token = str_random(AuthToken::TOKEN_LENGTH);
@@ -70,7 +71,9 @@ class AuthController extends Controller
 
         $authToken->setToken($token)->save();
 
-        return new Resources\AuthToken($authToken);
+        return response()
+            ->json(new Resources\AuthToken($authToken))
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function updateToken(Request $request)
@@ -81,21 +84,22 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $hash = AuthToken::createHash($request->input('token'));
         $authToken = AuthToken::where('hash', $hash)->first();
 
         if (is_null($authToken)) {
-            return [
-                'status' => false,
-                'message' => 'No token found.',
-            ];
+            return response()
+                ->json([
+                    'messages' => ['No token found.'],
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         $authToken->permissions = explode(',', $request->input('permissions'));
@@ -111,32 +115,36 @@ class AuthController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $hash = AuthToken::createHash($request->input('token'));
         $authToken = AuthToken::where('hash', $hash)->first();
 
         if (is_null($authToken)) {
-            return [
-                'status' => false,
-                'message' => 'No token found.',
-            ];
+            return response()
+                ->json([
+                    'messages' => ['No token found.'],
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         try {
             $authToken->delete();
-        } catch (\Exception $e) {
-            return [
-                'status' => false,
-                'message' => $e->getMessage()
-            ];
+        } catch (\Exception $exception) {
+            return response()
+                ->json([
+                    'messages' => [$exception->getMessage()],
+                ])
+                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return [];
+        return response()
+            ->json()
+            ->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }

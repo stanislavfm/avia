@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Database\Schema\Builder;
 use App\Http\Controllers\Controller;
 use App\Http\Resources;
@@ -23,18 +24,19 @@ class AirportController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if ($request->has(['name', 'code'])) {
-            return [
-                'status' => false,
-                'message' => 'It needs to specify one query parameter.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['It needs to specify one query parameter.'],
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if ($request->has('name')) {
@@ -46,10 +48,11 @@ class AirportController extends Controller
         }
 
         if ($airports->isEmpty()) {
-            return [
-                'status' => false,
-                'message' => 'No airports found.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['No airports found.']
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         return Resources\Airport::collection($airports);
@@ -65,18 +68,20 @@ class AirportController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $airport = Airport::create($request->only([
             'code', 'name', 'location', 'timezoneOffset'
         ]));
 
-        return new Resources\Airport($airport);
+        return response()
+            ->json(new Resources\Airport($airport))
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function updateAirport(Request $request)
@@ -89,11 +94,11 @@ class AirportController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $airport = Airport::where('code', $request->input('code'))->first();
@@ -109,24 +114,25 @@ class AirportController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         try {
             Airport::where('code', $request->input('code'))->delete();
         } catch (\Exception $exception) {
-            return [
-                'status' => false,
-                'message' => $exception->getMessage()
-            ];
+            return response()
+                ->json([
+                    'messages' => [$exception->getMessage()]
+                ])
+                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return [
-            'status' => true
-        ];
+        return response()
+            ->json()
+            ->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }

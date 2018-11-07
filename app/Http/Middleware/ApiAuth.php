@@ -2,6 +2,7 @@
 
 namespace App\Http\Middleware;
 
+use Illuminate\Http\Response;
 use Carbon\Carbon;
 use Closure;
 use App\AuthToken;
@@ -22,28 +23,30 @@ class ApiAuth
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $hash = AuthToken::createHash($request->input('token'));
         $authToken = AuthToken::where('hash', $hash)->first();
 
         if (is_null($authToken)) {
-            return [
-                'status' => false,
-                'message' => 'Given token is not exists.',
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Given token is not exists.'],
+                ])
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
 
         if (Carbon::now() > $authToken->expiresAt) {
-            return [
-                'status' => false,
-                'message' => 'Given token is expired.',
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Given token is expired.'],
+                ])
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
 
         $requestMethodPermissionMap = [
@@ -57,10 +60,11 @@ class ApiAuth
         $neededPermission = $requestMethodPermissionMap[$requestMethod];
 
         if (!in_array($neededPermission, $authToken->permissions)) {
-            return [
-                'status' => false,
-                'message' => 'Given token does not have permission to this method.',
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Given token does not have permission to this method.'],
+                ])
+                ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
 
         return $next($request);

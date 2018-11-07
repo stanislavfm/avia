@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use App\Http\Controllers\Controller;
 use App\Http\Resources;
 use App\Airport;
@@ -32,51 +33,55 @@ class FlightController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if (
             $request->has('departureTime')
             && $request->hasAny(['departureTimeFrom', 'departureTimeTo'])
         ) {
-            return [
-                'status' => false,
-                'message' => 'Invalid request parameters. Departure time should be specified without departure time from or departure time to fields.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Invalid request parameters. Departure time should be specified without departure time from or departure time to fields.']
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if (
             $request->has('arrivalTime')
             && $request->hasAny(['arrivalTimeFrom', 'arrivalTimeTo'])
         ) {
-            return [
-                'status' => false,
-                'message' => 'Invalid request parameters. Arrival time should be specified without arrival time from or arrival time to fields.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Invalid request parameters. Arrival time should be specified without arrival time from or arrival time to fields.']
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if (
             $request->hasAny(['departureTimeFrom', 'departureTimeTo'])
             && !$request->has(['departureTimeFrom', 'departureTimeTo'])
         ) {
-            return [
-                'status' => false,
-                'message' => 'Invalid request parameters. It should be specified both departure time from and departure time to fields.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Invalid request parameters. It should be specified both departure time from and departure time to fields.']
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if (
             $request->hasAny(['arrivalTimeFrom', 'arrivalTimeTo'])
             && !$request->has(['arrivalTimeFrom', 'arrivalTimeTo'])
         ) {
-            return [
-                'status' => false,
-                'message' => 'Invalid request parameters. It should be specified both arrival time from and arrival time to fields.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['Invalid request parameters. It should be specified both arrival time from and arrival time to fields.']
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $flightsQuery = Flight::query();
@@ -122,10 +127,11 @@ class FlightController extends Controller
         $flights = $flightsQuery->get();
 
         if ($flights->isEmpty()) {
-            return [
-                'status' => false,
-                'message' => 'No flights found.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['No flights found.']
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         return Resources\Flight::collection($flights);
@@ -143,11 +149,11 @@ class FlightController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $flight = new Flight($request->only([
@@ -164,7 +170,9 @@ class FlightController extends Controller
 
         $flight->save();
 
-        return new Resources\Flight($flight);
+        return response()
+            ->json(new Resources\Flight($flight))
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function updateFlight(Request $request)
@@ -179,11 +187,11 @@ class FlightController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if ($request->has(['departureTime', 'arrivalTime'])) {
@@ -192,20 +200,22 @@ class FlightController extends Controller
             $arrivalTime = new \DateTime($request->input('arrivalTime'));
 
             if ($departureTime >= $arrivalTime) {
-                return [
-                    'status' => false,
-                    'message' => 'Departure time must less than arrival time.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Departure time must less than arrival time.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
         }
 
         if ($request->has(['departureAirport', 'arrivalAirport'])) {
 
             if ($request->input('departureAirport') === $request->input('arrivalAirport')) {
-                return [
-                    'status' => false,
-                    'message' => 'Departure airport and arrival airport must be different.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Departure airport and arrival airport must be different.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -216,10 +226,11 @@ class FlightController extends Controller
             $departureTime = new \DateTime($request->input('departureTime'));
 
             if ($departureTime >= $flight->arrivalTime) {
-                return [
-                    'status' => false,
-                    'message' => 'Departure time must less than current arrival time.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Departure time must less than current arrival time.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
         }
 
@@ -228,19 +239,21 @@ class FlightController extends Controller
             $arrivalTime = new \DateTime($request->input('arrivalTime'));
 
             if ($arrivalTime <= $flight->departureTime) {
-                return [
-                    'status' => false,
-                    'message' => 'Arrival time must greater than current departure time.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Arrival time must greater than current departure time.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
         }
 
         if ($request->has('departureAirport')) {
             if ($request->input('departureAirport') === $flight->arrivalAirport->code) {
-                return [
-                    'status' => false,
-                    'message' => 'Given departure airport is current arrival airport.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Given departure airport is current arrival airport.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             } else {
                 $departureAirport = Airport::where('code', $request->input('departureAirport'))->first();
                 $flight->departureAirport()->associate($departureAirport);
@@ -249,10 +262,11 @@ class FlightController extends Controller
 
         if ($request->has('arrivalAirport')) {
             if ($request->input('arrivalAirport') === $flight->departureAirport->code) {
-                return [
-                    'status' => false,
-                    'message' => 'Given arrival airport is current departure airport.',
-                ];
+                return response()
+                    ->json([
+                        'messages' => ['Given arrival airport is current departure airport.'],
+                    ])
+                    ->setStatusCode(Response::HTTP_BAD_REQUEST);
             } else {
                 $arrivalAirport = Airport::where('code', $request->input('departureAirport'))->first();
                 $flight->arrivalAirport()->associate($arrivalAirport);
@@ -280,24 +294,25 @@ class FlightController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         try {
             Flight::where('number', $request->input('number'))->delete();
         } catch (\Exception $exception) {
-            return [
-                'status' => false,
-                'message' => $exception->getMessage()
-            ];
+            return response()
+                ->json([
+                    'messages' => [$exception->getMessage()],
+                ])
+                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return [
-            'status' => true
-        ];
+        return response()
+            ->json()
+            ->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }

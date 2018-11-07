@@ -8,6 +8,7 @@
 namespace App\Http\Controllers\Api;
 
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\Database\Schema\Builder;
 use App\Http\Controllers\Controller;
 use App\Http\Resources;
@@ -23,18 +24,19 @@ class TransporterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if ($request->has(['name', 'code'])) {
-            return [
-                'status' => false,
-                'message' => 'It needs to specify one query parameter.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['It needs to specify one query parameter.']
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         if ($request->has('name')) {
@@ -46,10 +48,11 @@ class TransporterController extends Controller
         }
 
         if ($transporters->isEmpty()) {
-            return [
-                'status' => false,
-                'message' => 'No transporters found.'
-            ];
+            return response()
+                ->json([
+                    'messages' => ['No transporters found.']
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         return Resources\Transporter::collection($transporters);
@@ -63,18 +66,20 @@ class TransporterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $transporter = Transporter::create($request->only([
             'code', 'name'
         ]));
 
-        return new Resources\Transporter($transporter);
+        return response()
+            ->json(new Resources\Transporter($transporter))
+            ->setStatusCode(Response::HTTP_CREATED);
     }
 
     public function updateTransporter(Request $request)
@@ -85,11 +90,11 @@ class TransporterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         $transporter = Transporter::where('code', $request->input('code'))->first();
@@ -105,24 +110,25 @@ class TransporterController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return [
-                'status' => false,
-                'message' => 'Validation failed.',
-                'details' => $validator->errors()
-            ];
+            return response()
+                ->json([
+                    'messages' => $validator->errors()
+                ])
+                ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
         try {
             Transporter::where('code', $request->input('code'))->delete();
         } catch (\Exception $exception) {
-            return [
-                'status' => false,
-                'message' => $exception->getMessage()
-            ];
+            return response()
+                ->json([
+                    'messages' => [$exception->getMessage()],
+                ])
+                ->setStatusCode(Response::HTTP_INTERNAL_SERVER_ERROR);
         }
 
-        return [
-            'status' => true
-        ];
+        return response()
+            ->json()
+            ->setStatusCode(Response::HTTP_NO_CONTENT);
     }
 }
