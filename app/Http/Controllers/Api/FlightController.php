@@ -46,7 +46,7 @@ class FlightController extends Controller
         ) {
             return response()
                 ->json([
-                    'messages' => ['Invalid request parameters. Departure time should be specified without departure time from or departure time to fields.']
+                    'messages' => [__('api.departure_time_without')]
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -57,7 +57,7 @@ class FlightController extends Controller
         ) {
             return response()
                 ->json([
-                    'messages' => ['Invalid request parameters. Arrival time should be specified without arrival time from or arrival time to fields.']
+                    'messages' => [__('api.arrival_time_without')]
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -68,7 +68,7 @@ class FlightController extends Controller
         ) {
             return response()
                 ->json([
-                    'messages' => ['Invalid request parameters. It should be specified both departure time from and departure time to fields.']
+                    'messages' => [__('api.both_departure')]
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -79,7 +79,7 @@ class FlightController extends Controller
         ) {
             return response()
                 ->json([
-                    'messages' => ['Invalid request parameters. It should be specified both arrival time from and arrival time to fields.']
+                    'messages' => [__('api.both_arrival')]
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -129,7 +129,7 @@ class FlightController extends Controller
         if ($flights->isEmpty()) {
             return response()
                 ->json([
-                    'messages' => ['No flights found.']
+                    'messages' => [__('api.no_flights_found')]
                 ])
                 ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
@@ -202,7 +202,7 @@ class FlightController extends Controller
             if ($departureTime >= $arrivalTime) {
                 return response()
                     ->json([
-                        'messages' => ['Departure time must less than arrival time.'],
+                        'messages' => [__('api.departure_time_less')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
@@ -213,7 +213,7 @@ class FlightController extends Controller
             if ($request->input('departureAirport') === $request->input('arrivalAirport')) {
                 return response()
                     ->json([
-                        'messages' => ['Departure airport and arrival airport must be different.'],
+                        'messages' => [__('api.departure_arrival_different')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
@@ -228,7 +228,7 @@ class FlightController extends Controller
             if ($departureTime >= $flight->arrivalTime) {
                 return response()
                     ->json([
-                        'messages' => ['Departure time must less than current arrival time.'],
+                        'messages' => [__('api.departure_time_less_current')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
@@ -241,7 +241,7 @@ class FlightController extends Controller
             if ($arrivalTime <= $flight->departureTime) {
                 return response()
                     ->json([
-                        'messages' => ['Arrival time must greater than current departure time.'],
+                        'messages' => [__('api.arrival_time_greater_current')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             }
@@ -251,7 +251,7 @@ class FlightController extends Controller
             if ($request->input('departureAirport') === $flight->arrivalAirport->code) {
                 return response()
                     ->json([
-                        'messages' => ['Given departure airport is current arrival airport.'],
+                        'messages' => [__('api.departure_is_arrival')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             } else {
@@ -264,7 +264,7 @@ class FlightController extends Controller
             if ($request->input('arrivalAirport') === $flight->departureAirport->code) {
                 return response()
                     ->json([
-                        'messages' => ['Given arrival airport is current departure airport.'],
+                        'messages' => [__('api.arrival_is_departure')],
                     ])
                     ->setStatusCode(Response::HTTP_BAD_REQUEST);
             } else {

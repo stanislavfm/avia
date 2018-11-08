@@ -34,7 +34,7 @@ class AirportController extends Controller
         if ($request->has(['name', 'code'])) {
             return response()
                 ->json([
-                    'messages' => ['It needs to specify one query parameter.'],
+                    'messages' => [__('api.one_query_parameter')],
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -50,7 +50,7 @@ class AirportController extends Controller
         if ($airports->isEmpty()) {
             return response()
                 ->json([
-                    'messages' => ['No airports found.']
+                    'messages' => [__('api.no_airports_found')]
                 ])
                 ->setStatusCode(Response::HTTP_NOT_FOUND);
         }

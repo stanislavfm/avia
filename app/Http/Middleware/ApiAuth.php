@@ -36,7 +36,7 @@ class ApiAuth
         if (is_null($authToken)) {
             return response()
                 ->json([
-                    'messages' => ['Given token is not exists.'],
+                    'messages' => [__('api.token_not_exists')],
                 ])
                 ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
@@ -44,7 +44,7 @@ class ApiAuth
         if (Carbon::now() > $authToken->expiresAt) {
             return response()
                 ->json([
-                    'messages' => ['Given token is expired.'],
+                    'messages' => [__('api.token_is_expired')],
                 ])
                 ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }
@@ -62,7 +62,7 @@ class ApiAuth
         if (!in_array($neededPermission, $authToken->permissions)) {
             return response()
                 ->json([
-                    'messages' => ['Given token does not have permission to this method.'],
+                    'messages' => [__('api.token_no_permissions')],
                 ])
                 ->setStatusCode(Response::HTTP_UNAUTHORIZED);
         }

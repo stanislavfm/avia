@@ -34,7 +34,7 @@ class TransporterController extends Controller
         if ($request->has(['name', 'code'])) {
             return response()
                 ->json([
-                    'messages' => ['It needs to specify one query parameter.']
+                    'messages' => [__('api.one_query_parameter')]
                 ])
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
@@ -50,7 +50,7 @@ class TransporterController extends Controller
         if ($transporters->isEmpty()) {
             return response()
                 ->json([
-                    'messages' => ['No transporters found.']
+                    'messages' => [__('api.no_transporters_found')]
                 ])
                 ->setStatusCode(Response::HTTP_NOT_FOUND);
         }

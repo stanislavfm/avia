@@ -37,7 +37,7 @@ class AuthController extends Controller
         if (is_null($authToken)) {
             return [
                 'status' => Response::HTTP_NOT_FOUND,
-                'messages' => ['No token found.'],
+                'messages' => [__('api.no_token_found')]
             ];
         }
 
@@ -97,7 +97,7 @@ class AuthController extends Controller
         if (is_null($authToken)) {
             return response()
                 ->json([
-                    'messages' => ['No token found.'],
+                    'messages' => [__('api.no_token_found')]
                 ])
                 ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
@@ -128,7 +128,7 @@ class AuthController extends Controller
         if (is_null($authToken)) {
             return response()
                 ->json([
-                    'messages' => ['No token found.'],
+                    'messages' => [__('api.no_token_found')]
                 ])
                 ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
