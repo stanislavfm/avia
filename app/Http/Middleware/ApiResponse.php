@@ -52,7 +52,7 @@ class ApiResponse
         return [
             'method'     => $method,
             'command'    => strtolower($command),
-            'parameters' => $request->all()
+            'parameters' => $request->json()->all()
         ];
     }
 }

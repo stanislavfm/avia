@@ -14,10 +14,9 @@ class Permissions implements Rule
      */
     public function passes($attribute, $value)
     {
-        $permissions = explode(',', $value);
-        $permissions = array_filter($permissions);
+        $permissions = $value;
 
-        if (empty($permissions)) {
+        if (!is_array($permissions)) {
             return false;
         }
 
@@ -43,6 +42,6 @@ class Permissions implements Rule
      */
     public function message()
     {
-        return 'Permissions should be comma-separated string with next values: ' . implode(', ', AuthToken::PERMISSIONS) . '.';
+        return __('api.permissions_validation', ['values' => implode(', ', AuthToken::PERMISSIONS)]);
     }
 }

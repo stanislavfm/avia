@@ -19,7 +19,7 @@ class AuthController extends Controller
 {
     public function getToken(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'token' => ['required', 'string', 'size:' . AuthToken::TOKEN_LENGTH]
         ]);
 
@@ -35,10 +35,11 @@ class AuthController extends Controller
         $authToken = AuthToken::where('hash', $hash)->first();
 
         if (is_null($authToken)) {
-            return [
-                'status' => Response::HTTP_NOT_FOUND,
-                'messages' => [__('api.no_token_found')]
-            ];
+            return response()
+                ->json([
+                    'messages' => [__('api.no_token_found')]
+                ])
+                ->setStatusCode(Response::HTTP_NOT_FOUND);
         }
 
         return new Resources\AuthToken($authToken);
@@ -46,8 +47,8 @@ class AuthController extends Controller
 
     public function createToken(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
-            'permissions' => ['required', new Rules\Permissions()]
+        $validator = \Validator::make($request->input(), [
+            'permissions' => ['required', 'array', new Rules\Permissions()]
         ]);
 
         if ($validator->fails()) {
@@ -78,9 +79,9 @@ class AuthController extends Controller
 
     public function updateToken(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'token' => ['required', 'string', 'size:' . AuthToken::TOKEN_LENGTH],
-            'permissions' => ['required', new Rules\Permissions()]
+            'permissions' => ['required', 'array', new Rules\Permissions()]
         ]);
 
         if ($validator->fails()) {
@@ -110,7 +111,7 @@ class AuthController extends Controller
 
     public function deleteToken(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'token' => ['required', 'string', 'size:' . AuthToken::TOKEN_LENGTH]
         ]);
 

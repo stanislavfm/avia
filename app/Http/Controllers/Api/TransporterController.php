@@ -18,7 +18,7 @@ class TransporterController extends Controller
 {
     public function getTransporters(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'name' => ['sometimes', 'required', 'string', 'min:1', 'max:' . Builder::$defaultStringLength],
             'code' => ['sometimes', 'required', 'string', 'size:' . Transporter::CODE_LENGTH]
         ]);
@@ -60,7 +60,7 @@ class TransporterController extends Controller
 
     public function createTransporter(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Transporter::CODE_LENGTH, 'unique:transporters,code'],
             'name' => ['required', 'string', 'max:' . Builder::$defaultStringLength, 'unique:transporters,name'],
         ]);
@@ -84,7 +84,7 @@ class TransporterController extends Controller
 
     public function updateTransporter(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
             'name' => ['required', 'string', 'max:' . Builder::$defaultStringLength, 'unique:transporters,name'],
         ]);
@@ -98,14 +98,14 @@ class TransporterController extends Controller
         }
 
         $transporter = Transporter::where('code', $request->input('code'))->first();
-        $transporter->fill($request->all());
+        $transporter->fill($request->input());
 
         return new Resources\Transporter($transporter);
     }
 
     public function deleteTransporter(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
         ]);
 

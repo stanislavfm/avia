@@ -18,7 +18,7 @@ class AirportController extends Controller
 {
     public function getAirports(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'name' => ['sometimes', 'required', 'string', 'min:1', 'max:' . Builder::$defaultStringLength],
             'code' => ['sometimes', 'required', 'string', 'size:' . Airport::CODE_LENGTH]
         ]);
@@ -60,7 +60,7 @@ class AirportController extends Controller
 
     public function createAirport(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'unique:airports,code'],
             'name' => ['required', 'string', 'max:' . Builder::$defaultStringLength, 'unique:airports,name'],
             'location' => ['required', 'string', 'regex:/^(-?([0-9]|[1-8][0-9]|9[0-9]|[12][0-9]{2}|3[0-5][0-9]|360)\.\d{1,6}),(?1)$/', 'unique:airports,location'],
@@ -86,7 +86,7 @@ class AirportController extends Controller
 
     public function updateAirport(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
             'name' => ['sometimes', 'required_without_all:location,timezoneOffset', 'string', 'max:' . Builder::$defaultStringLength, 'unique:airports,name'],
             'location' => ['sometimes', 'required_without_all:name,timezoneOffset', 'string', 'regex:/^(-?([0-9]|[1-8][0-9]|9[0-9]|[12][0-9]{2}|3[0-5][0-9]|360)\.\d{1,6}),(?1)$/', 'unique:airports,location'],
@@ -101,15 +101,15 @@ class AirportController extends Controller
                 ->setStatusCode(Response::HTTP_BAD_REQUEST);
         }
 
-        $airport = Airport::where('code', $request->input('code'))->first();
-        $airport->fill($request->all());
+        $airport = Airport::where('code', $request->in('code'))->first();
+        $airport->fill($request->input());
 
         return new Resources\Airport($airport);
     }
 
     public function deleteAirport(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
         ]);
 

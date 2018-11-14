@@ -19,7 +19,7 @@ class FlightController extends Controller
 {
     public function getFlights(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'number' => ['sometimes', 'required', 'string', 'max:' . Flight::NUMBER_LENGTH, 'regex:/^\d+$/'],
             'transporter' => ['sometimes', 'required', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
             'departureAirport'  => ['sometimes', 'required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
@@ -139,7 +139,7 @@ class FlightController extends Controller
 
     public function createFlight(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'number' => ['required', 'string', 'max:' . Flight::NUMBER_LENGTH, 'regex:/^\d+$/', 'unique:flights,number'],
             'transporter' => ['required', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
             'departureAirport'  => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'different:arrivalAirport', 'exists:airports,code'],
@@ -177,7 +177,7 @@ class FlightController extends Controller
 
     public function updateFlight(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'number' => ['required', 'string', 'max:' . Flight::NUMBER_LENGTH, 'regex:/^\d+$/', 'exists:flights,number'],
             'transporter' => ['sometimes', 'required_without_all:departureAirport,arrivalAirport,departureTime,arrivalTime', 'string', 'size:' . Transporter::CODE_LENGTH, 'exists:transporters,code'],
             'departureAirport'  => ['sometimes', 'required_without_all:transporter,arrivalAirport,departureTime,arrivalTime', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
@@ -289,7 +289,7 @@ class FlightController extends Controller
 
     public function deleteFlight(Request $request)
     {
-        $validator = \Validator::make($request->all(), [
+        $validator = \Validator::make($request->input(), [
             'number' => ['required', 'string', 'max:' . Flight::NUMBER_LENGTH, 'regex:/^\d+$/', 'exists:flights,number'],
         ]);
 
