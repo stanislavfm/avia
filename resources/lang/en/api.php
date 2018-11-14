@@ -19,5 +19,6 @@ return [
     'arrival_is_departure' => 'Given arrival airport is current departure airport.',
     'token_not_exists' => 'Given token is not exists.',
     'token_is_expired' => 'Given token is expired.',
-    'token_no_permissions' => 'Given token does not have permission to this method.'
+    'token_no_permissions' => 'Given token does not have permission to this method.',
+    'permissions_validation' => 'Permissions should be comma-separated string with next values: :values.',
 ];
