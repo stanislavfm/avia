@@ -64,7 +64,7 @@ class AirportController extends Controller
             'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'unique:airports,code'],
             'name' => ['required', 'string', 'max:' . Builder::$defaultStringLength, 'unique:airports,name'],
             'location' => ['required', 'string', 'regex:/^(-?([0-9]|[1-8][0-9]|9[0-9]|[12][0-9]{2}|3[0-5][0-9]|360)\.\d{1,6}),(?1)$/', 'unique:airports,location'],
-            'timezoneOffset' => ['required', 'integer', 'min:-12', 'max:14'],
+            'timezone_offset' => ['required', 'integer', 'min:-12', 'max:14'],
         ]);
 
         if ($validator->fails()) {
@@ -76,7 +76,7 @@ class AirportController extends Controller
         }
 
         $airport = Airport::create($request->only([
-            'code', 'name', 'location', 'timezoneOffset'
+            'code', 'name', 'location', 'timezone_offset'
         ]));
 
         return response()
@@ -88,9 +88,9 @@ class AirportController extends Controller
     {
         $validator = \Validator::make($request->input(), [
             'code' => ['required', 'string', 'size:' . Airport::CODE_LENGTH, 'exists:airports,code'],
-            'name' => ['sometimes', 'required_without_all:location,timezoneOffset', 'string', 'max:' . Builder::$defaultStringLength, 'unique:airports,name'],
-            'location' => ['sometimes', 'required_without_all:name,timezoneOffset', 'string', 'regex:/^(-?([0-9]|[1-8][0-9]|9[0-9]|[12][0-9]{2}|3[0-5][0-9]|360)\.\d{1,6}),(?1)$/', 'unique:airports,location'],
-            'timezoneOffset' => ['sometimes', 'required_without_all:name,location', 'integer', 'min:-12', 'max:14'],
+            'name' => ['sometimes', 'required_without_all:location,timezone_offset', 'string', 'max:' . Builder::$defaultStringLength, 'unique:airports,name'],
+            'location' => ['sometimes', 'required_without_all:name,timezone_offset', 'string', 'regex:/^(-?([0-9]|[1-8][0-9]|9[0-9]|[12][0-9]{2}|3[0-5][0-9]|360)\.\d{1,6}),(?1)$/', 'unique:airports,location'],
+            'timezone_offset' => ['sometimes', 'required_without_all:name,location', 'integer', 'min:-12', 'max:14'],
         ]);
 
         if ($validator->fails()) {
