@@ -1,8 +1,8 @@
 <?php
 /**
- * Url Rewrite Import for Magento 1
+ * Flight Searcher API
  * @author Stanislav Chertilin <staschertilin@gmail.com>
- * @copyright 2018 https://github.com/stanislavfm/url-rewrite-import-m1
+ * @copyright 2019 https://github.com/stanislavfm/flight-searcher
  */
 
 namespace App\Http\Controllers\Api;
